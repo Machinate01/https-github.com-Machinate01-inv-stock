@@ -1,12 +1,18 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { BarChart3, Search, TrendingUp, TrendingDown, Filter } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { BarChart3, Search, TrendingUp, TrendingDown, Filter, ChevronDown, ChevronUp, Package } from 'lucide-react';
 
 interface Txn {
   id: string; transactionType: string; docNumber: string; docDate: string;
   itemCode: string; itemName: string; batchNumber: string; expiryDate?: string;
   warehouseCode: string; binCode: string; qtyIn: number; qtyOut: number;
   balanceQty: number; createdBy: string; createdAt: string; remark?: string;
+  calcBalance?: number;
+}
+
+interface StockEntry {
+  id: string; itemCode: string; itemName: string; batchNumber: string;
+  warehouseCode: string; binCode: string; quantity: number; unit: string;
 }
 
 interface WH { code: string; name: string; }
@@ -24,9 +30,11 @@ export default function BatchReportPage() {
   const today = new Date().toISOString().split('T')[0];
   const [filters, setFilters] = useState({ batch: '', item: '', type: '', wh: '', bin: '', dateFrom: '', dateTo: today });
   const [txns, setTxns] = useState<Txn[]>([]);
+  const [stock, setStock] = useState<StockEntry[]>([]);
   const [warehouses, setWarehouses] = useState<WH[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => { fetch('/api/warehouses').then(r => r.json()).then(setWarehouses); }, []);
 
@@ -40,22 +48,43 @@ export default function BatchReportPage() {
     if (filters.bin) q.set('bin', filters.bin);
     if (filters.dateFrom) q.set('dateFrom', filters.dateFrom);
     if (filters.dateTo) q.set('dateTo', filters.dateTo);
-    const data = await fetch(`/api/batch-report?${q.toString()}`).then(r => r.json());
-    setTxns(data);
+
+    const stockQ = new URLSearchParams();
+    if (filters.wh) stockQ.set('warehouse', filters.wh);
+    if (filters.item) stockQ.set('itemCode', filters.item);
+
+    const [txnData, stockData] = await Promise.all([
+      fetch(`/api/batch-report?${q.toString()}`).then(r => r.json()),
+      fetch(`/api/stock?${stockQ.toString()}`).then(r => r.json()),
+    ]);
+
+    // Filter stock by batch/bin if specified
+    let filteredStock: StockEntry[] = stockData;
+    if (filters.batch) filteredStock = filteredStock.filter((s: StockEntry) =>
+      s.batchNumber.toLowerCase().includes(filters.batch.toLowerCase()));
+    if (filters.bin) filteredStock = filteredStock.filter((s: StockEntry) =>
+      s.binCode?.toLowerCase().includes(filters.bin.toLowerCase()));
+    if (filters.item) filteredStock = filteredStock.filter((s: StockEntry) =>
+      s.itemCode.toLowerCase().includes(filters.item.toLowerCase()) ||
+      s.itemName.toLowerCase().includes(filters.item.toLowerCase()));
+
+    setTxns(txnData);
+    setStock(filteredStock.filter((s: StockEntry) => s.quantity > 0));
     setLoading(false);
     setSearched(true);
+    setShowHistory(false);
   }
 
   function reset() {
     setFilters({ batch: '', item: '', type: '', wh: '', bin: '', dateFrom: '', dateTo: today });
-    setTxns([]); setSearched(false);
+    setTxns([]); setStock([]); setSearched(false); setShowHistory(false);
   }
 
   const totalIn = txns.reduce((s, t) => s + t.qtyIn, 0);
   const totalOut = txns.reduce((s, t) => s + t.qtyOut, 0);
 
   // Recalculate running balance per (itemCode + batchNumber + warehouseCode)
-  const txnsWithCalcBalance = (() => {
+  const txnsWithCalcBalance = useMemo(() => {
     const sorted = [...txns].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     const whBalance: Record<string, number> = {};
     const result = sorted.map(t => {
@@ -64,22 +93,27 @@ export default function BatchReportPage() {
       return { ...t, calcBalance: whBalance[key] };
     });
     return result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  })();
+  }, [txns]);
 
-  // WH balance summary (last known balance per WH)
-  const whSummary = (() => {
-    const map: Record<string, number> = {};
-    txnsWithCalcBalance.forEach(t => {
-      const key = `${t.warehouseCode}`;
-      if (!(key in map)) map[key] = t.calcBalance;
+  // Group stock by WH for LS24 view
+  const stockByWH = useMemo(() => {
+    const map: Record<string, StockEntry[]> = {};
+    stock.forEach(s => {
+      if (!map[s.warehouseCode]) map[s.warehouseCode] = [];
+      map[s.warehouseCode].push(s);
     });
     return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
-  })();
+  }, [stock]);
+
+  const stockTotal = stock.reduce((s, e) => s + e.quantity, 0);
+  const stockUnit = stock[0]?.unit || '';
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2"><BarChart3 className="w-6 h-6 text-indigo-600" /> Batch Number Transactions Report</h1>
+        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+          <BarChart3 className="w-6 h-6 text-indigo-600" /> Batch Number Transactions Report
+        </h1>
         <p className="text-slate-500 text-sm mt-1">ประวัติการเคลื่อนไหวสินค้าตาม Batch Number</p>
       </div>
 
@@ -151,60 +185,110 @@ export default function BatchReportPage() {
         </div>
       </div>
 
-      {/* Summary */}
-      {searched && (
-        <>
-          <div className="grid grid-cols-3 gap-4 mb-4">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-              <p className="text-xs text-slate-400 mb-1">รายการทั้งหมด</p>
-              <p className="text-2xl font-bold text-slate-700">{txns.length}</p>
+      {/* ── LS24-style Stock by Location ── */}
+      {searched && stock.length > 0 && (
+        <div className="mb-5">
+          {/* Header bar */}
+          <div className="bg-indigo-700 text-white rounded-t-xl px-5 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Package className="w-4 h-4" />
+              <span className="font-semibold text-sm">Stock Overview by Location (LS24)</span>
             </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1"><TrendingUp className="w-3 h-3 text-green-500" /> จำนวนรับเข้า</p>
-              <p className="text-2xl font-bold text-green-600">+{totalIn.toLocaleString()}</p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1"><TrendingDown className="w-3 h-3 text-red-500" /> จำนวนจ่ายออก</p>
-              <p className="text-2xl font-bold text-red-600">-{totalOut.toLocaleString()}</p>
-            </div>
+            <span className="text-indigo-200 text-xs">{stock.length} รายการ / {stock[0]?.itemCode}</span>
           </div>
 
-          {/* WH Balance summary */}
-          {whSummary.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
-              <p className="text-xs font-semibold text-slate-500 uppercase mb-3">คงเหลือปัจจุบันแยกตามคลัง (คำนวณจากรายการ)</p>
-              <div className="flex flex-wrap gap-3">
-                {whSummary.map(([wh, bal]) => (
-                  <div key={wh} className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${bal > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                    <span className="text-sm font-semibold text-slate-600">{wh}</span>
-                    <span className={`text-lg font-bold ${bal > 0 ? 'text-green-700' : 'text-red-600'}`}>{bal.toLocaleString()}</span>
-                  </div>
-                ))}
-                <div className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-indigo-50 border-indigo-200">
-                  <span className="text-sm font-semibold text-slate-600">รวมทั้งหมด</span>
-                  <span className="text-lg font-bold text-indigo-700">
-                    {whSummary.reduce((s, [, v]) => s + v, 0).toLocaleString()}
+          {stockByWH.map(([wh, entries]) => {
+            const whTotal = entries.reduce((s, e) => s + e.quantity, 0);
+            return (
+              <div key={wh} className="border-x border-slate-200 last:rounded-b-xl last:border-b overflow-hidden">
+                {/* WH Header */}
+                <div className="bg-slate-100 border-b border-slate-200 px-4 py-2 flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wide">
+                    คลัง: <span className="text-indigo-700">{wh}</span>
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500">
+                    รวม: <span className="text-slate-800 font-bold">{whTotal.toLocaleString()} {stockUnit}</span>
                   </span>
                 </div>
+
+                {/* Column headers */}
+                <div className="grid grid-cols-12 bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                  <div className="col-span-1 px-4 py-2 text-center">#</div>
+                  <div className="col-span-2 px-4 py-2">Bin Location</div>
+                  <div className="col-span-2 px-4 py-2">Item Code</div>
+                  <div className="col-span-3 px-4 py-2">ชื่อสินค้า</div>
+                  <div className="col-span-2 px-4 py-2">Batch / Lot</div>
+                  <div className="col-span-1 px-4 py-2 text-right">จำนวน</div>
+                  <div className="col-span-1 px-4 py-2 text-center">หน่วย</div>
+                </div>
+
+                {/* Rows */}
+                {entries
+                  .sort((a, b) => (a.binCode || '').localeCompare(b.binCode || ''))
+                  .map((e, idx) => (
+                    <div key={e.id}
+                      className={`grid grid-cols-12 text-sm border-b border-slate-100 hover:bg-indigo-50 transition ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}`}>
+                      <div className="col-span-1 px-4 py-2.5 text-center text-slate-400 text-xs">{idx + 1}</div>
+                      <div className="col-span-2 px-4 py-2.5 font-mono text-xs font-semibold text-indigo-700">{e.binCode || '—'}</div>
+                      <div className="col-span-2 px-4 py-2.5 font-mono text-xs text-blue-700 font-medium">{e.itemCode}</div>
+                      <div className="col-span-3 px-4 py-2.5 text-slate-700 text-xs truncate">{e.itemName}</div>
+                      <div className="col-span-2 px-4 py-2.5 font-mono text-xs text-slate-600">{e.batchNumber || '—'}</div>
+                      <div className="col-span-1 px-4 py-2.5 text-right font-bold text-slate-800">{e.quantity.toLocaleString()}</div>
+                      <div className="col-span-1 px-4 py-2.5 text-center text-slate-500 text-xs">{e.unit}</div>
+                    </div>
+                  ))}
+
+                {/* WH Subtotal */}
+                <div className="grid grid-cols-12 bg-indigo-50 border-b border-indigo-100 text-sm font-semibold">
+                  <div className="col-span-10 px-4 py-2 text-right text-indigo-700 text-xs uppercase">รวม {wh}</div>
+                  <div className="col-span-1 px-4 py-2 text-right text-indigo-800 font-bold">{whTotal.toLocaleString()}</div>
+                  <div className="col-span-1 px-4 py-2 text-center text-indigo-600 text-xs">{stockUnit}</div>
+                </div>
               </div>
-            </div>
-          )}
-        </>
+            );
+          })}
+
+          {/* Grand Total */}
+          <div className="bg-indigo-700 rounded-b-xl px-4 py-3 grid grid-cols-12 text-white">
+            <div className="col-span-10 text-right text-sm font-semibold pr-2">ยอดรวมทั้งหมด (Grand Total)</div>
+            <div className="col-span-1 text-right font-bold text-lg">{stockTotal.toLocaleString()}</div>
+            <div className="col-span-1 text-center text-indigo-200 text-sm">{stockUnit}</div>
+          </div>
+        </div>
       )}
 
-      {/* Table */}
-      {searched && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-700">ผลการค้นหา ({txns.length} รายการ)</h2>
-          </div>
-          {txns.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <BarChart3 className="w-10 h-10 mx-auto mb-2 opacity-30" />
-              <p>ไม่พบข้อมูลที่ตรงกับเงื่อนไข</p>
+      {/* No stock found */}
+      {searched && stock.length === 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 text-center py-10 mb-5">
+          <Package className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+          <p className="text-slate-500 text-sm">ไม่พบ Stock ปัจจุบันตามเงื่อนไข</p>
+        </div>
+      )}
+
+      {/* ── Transaction History (collapsible) ── */}
+      {searched && txns.length > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <button
+            onClick={() => setShowHistory(h => !h)}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50 transition"
+          >
+            <div className="flex items-center gap-3">
+              <BarChart3 className="w-4 h-4 text-slate-500" />
+              <span className="font-semibold text-slate-700">ประวัติรายการ Transaction ({txns.length} รายการ)</span>
+              <div className="flex gap-3 ml-2">
+                <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                  <TrendingUp className="w-3 h-3" /> +{totalIn.toLocaleString()}
+                </span>
+                <span className="text-xs text-red-500 font-medium flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" /> -{totalOut.toLocaleString()}
+                </span>
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
+            {showHistory ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+          </button>
+
+          {showHistory && (
+            <div className="overflow-x-auto border-t border-slate-100">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-xs">
@@ -218,7 +302,7 @@ export default function BatchReportPage() {
                     <th className="px-4 py-3 text-left">คลัง / Location</th>
                     <th className="px-4 py-3 text-right">รับเข้า</th>
                     <th className="px-4 py-3 text-right">จ่ายออก</th>
-                    <th className="px-4 py-3 text-right">คงเหลือ / Location</th>
+                    <th className="px-4 py-3 text-right">คงเหลือ/WH</th>
                     <th className="px-4 py-3 text-left">หมายเหตุ</th>
                   </tr>
                 </thead>
@@ -231,9 +315,9 @@ export default function BatchReportPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3 font-mono text-xs text-slate-600">{t.docNumber}</td>
-                      <td className="px-4 py-3 text-slate-500">{t.docDate}</td>
-                      <td className="px-4 py-3 font-medium text-slate-700">{t.itemCode}</td>
-                      <td className="px-4 py-3 text-slate-600">{t.itemName}</td>
+                      <td className="px-4 py-3 text-slate-500 text-xs">{t.docDate}</td>
+                      <td className="px-4 py-3 font-medium text-slate-700 text-xs">{t.itemCode}</td>
+                      <td className="px-4 py-3 text-slate-600 text-xs">{t.itemName}</td>
                       <td className="px-4 py-3 font-mono text-xs text-blue-600 font-semibold">{t.batchNumber}</td>
                       <td className="px-4 py-3 text-slate-500 text-xs">{t.expiryDate || '-'}</td>
                       <td className="px-4 py-3">
@@ -245,10 +329,10 @@ export default function BatchReportPage() {
                       <td className="px-4 py-3 text-right font-semibold text-green-600">{t.qtyIn > 0 ? `+${t.qtyIn}` : '-'}</td>
                       <td className="px-4 py-3 text-right font-semibold text-red-500">{t.qtyOut > 0 ? `-${t.qtyOut}` : '-'}</td>
                       <td className="px-4 py-3 text-right">
-                        <div className={`font-bold ${t.calcBalance < 0 ? 'text-red-600' : 'text-slate-800'}`}>
-                          {t.calcBalance.toLocaleString()}
+                        <div className={`font-bold text-sm ${(t.calcBalance ?? 0) < 0 ? 'text-red-600' : 'text-slate-800'}`}>
+                          {(t.calcBalance ?? 0).toLocaleString()}
                         </div>
-                        <div className="text-xs text-indigo-500 font-mono mt-0.5">{t.warehouseCode}</div>
+                        <div className="text-xs text-indigo-500 mt-0.5">{t.warehouseCode}</div>
                       </td>
                       <td className="px-4 py-3 text-slate-400 text-xs">{t.remark || '-'}</td>
                     </tr>
@@ -264,6 +348,7 @@ export default function BatchReportPage() {
         <div className="text-center py-16 text-slate-400">
           <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p>กรอกเงื่อนไขค้นหาแล้วกด &quot;ค้นหา&quot;</p>
+          <p className="text-xs mt-1 opacity-60">แสดงผลแบบ Stock by Location (LS24)</p>
         </div>
       )}
     </div>
