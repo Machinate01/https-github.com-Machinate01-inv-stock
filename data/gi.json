@@ -1,0 +1,111 @@
+[
+  {
+    "id": "d67ace5f-de98-4e49-b251-a23e29c4f060",
+    "docNumber": "GI-2026-0001",
+    "docDate": "2026-05-11",
+    "postingDate": "2026-05-11",
+    "type": "normal",
+    "requestedBy": "S001",
+    "remark": "",
+    "lines": [
+      {
+        "lineNum": 1,
+        "itemCode": "M00044",
+        "itemName": "Ankle Brace (Sego Breath) size M",
+        "qty": 20,
+        "unit": "EA",
+        "batchNumber": "95518",
+        "warehouseCode": "WH2",
+        "binCode": "ALA-1-1",
+        "reason": "ขายรอบ1"
+      },
+      {
+        "lineNum": 2,
+        "itemCode": "M00064",
+        "itemName": "ELNOVA Surgical Lumbo Sacral Corset (large)",
+        "qty": 20,
+        "unit": "EA",
+        "batchNumber": "87382",
+        "warehouseCode": "WH2",
+        "binCode": "ALA-1-2",
+        "reason": "ขายรอบ1"
+      }
+    ],
+    "status": "completed",
+    "createdBy": "admin",
+    "createdAt": "2026-05-11T10:20:31.573Z",
+    "pickListId": "55a5f253-b918-436b-af63-9ccfef35304b",
+    "confirmedBy": "admin",
+    "confirmedAt": "2026-05-11T10:21:24.168Z"
+  },
+  {
+    "id": "8c44e98e-cf5c-4304-ae7f-b14d744bfe7f",
+    "docNumber": "GI-2026-0002",
+    "docDate": "2026-05-11",
+    "postingDate": "2026-05-11",
+    "type": "normal",
+    "requestedBy": "",
+    "remark": "",
+    "lines": [
+      {
+        "lineNum": 1,
+        "itemCode": "D00001",
+        "itemName": "Amoxicillin and Clavulanate Inj. (1.2 g) (1X10)",
+        "qty": 500,
+        "unit": "EA",
+        "batchNumber": "k011210",
+        "warehouseCode": "WH1",
+        "binCode": "A2",
+        "reason": "tes3",
+        "availableQty": 1500
+      },
+      {
+        "lineNum": 2,
+        "itemCode": "D00002",
+        "itemName": "Ceftriaxone Sodium for Injection 1 g (1x10)",
+        "qty": 500,
+        "unit": "EA",
+        "batchNumber": "C010010",
+        "warehouseCode": "WH1",
+        "binCode": "A4",
+        "reason": "tes3",
+        "availableQty": 1500
+      }
+    ],
+    "status": "completed",
+    "createdBy": "admin",
+    "createdAt": "2026-05-11T10:50:33.957Z",
+    "pickListId": "9859a943-fde5-4c56-bebd-129e833400f0",
+    "confirmedBy": "admin",
+    "confirmedAt": "2026-05-11T10:51:25.310Z"
+  },
+  {
+    "id": "29885add-f370-4094-b23f-46e50f22ea5c",
+    "docNumber": "GI-2026-0003",
+    "docDate": "2026-05-11",
+    "postingDate": "2026-05-11",
+    "type": "normal",
+    "requestedBy": "",
+    "remark": "test4",
+    "lines": [
+      {
+        "lineNum": 1,
+        "itemCode": "D00001",
+        "itemName": "Amoxicillin and Clavulanate Inj. (1.2 g) (1X10)",
+        "qty": 1500,
+        "unit": "EA",
+        "batchNumber": "test1",
+        "warehouseCode": "WH1",
+        "binCode": "A1",
+        "reason": "test5",
+        "availableQty": 2000
+      }
+    ],
+    "status": "completed",
+    "createdBy": "admin",
+    "createdAt": "2026-05-11T10:54:31.891Z",
+    "pickListId": "d3a81680-41c9-4f3f-9400-71655c74564c",
+    "confirmedBy": "admin",
+    "confirmedAt": "2026-05-11T10:55:16.200Z"
+  }
+]

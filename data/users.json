@@ -1,0 +1,58 @@
+[
+  {
+    "id": "46cb3e1f-618b-4a80-b40e-cca3d40f0a75",
+    "username": "admin",
+    "password": "$2b$10$U1/5EclhzJyNzuqOoL8oSOo/swRQSWZMCC2BYSRXRcLbPGq1gkIne",
+    "name": "Administrator",
+    "role": "admin",
+    "warehouseAccess": [],
+    "active": true,
+    "createdAt": "2026-05-11T10:04:03.743Z"
+  },
+  {
+    "id": "741b65c6-fc3d-4a27-aec1-0370379d13e5",
+    "username": "manager",
+    "password": "$2b$10$LeskAlaKlfnZzrsyEFXwVuAtjXNILdpN2SP3MEQyccSZJsn.TgSUO",
+    "name": "Warehouse Manager",
+    "role": "manager",
+    "warehouseAccess": [],
+    "active": true,
+    "createdAt": "2026-05-11T10:04:03.828Z"
+  },
+  {
+    "id": "d5a569d4-e8f8-4dc0-b36b-e0046ee32ba3",
+    "username": "staff1",
+    "password": "$2b$10$VTvCoHaw3tGY8GmHo7AQAu4jDhYTTzan/Vb4jlH9a/.ip1IZQtYRW",
+    "name": "Staff WH1",
+    "role": "staff",
+    "warehouseAccess": [
+      "WH1",
+      "WH1-1"
+    ],
+    "active": true,
+    "createdAt": "2026-05-11T10:04:03.910Z"
+  },
+  {
+    "id": "7e52e916-d679-4876-9222-d811b52b89e0",
+    "username": "staff2",
+    "password": "$2b$10$nlGTa.ZCYtcO6QGNDO9qD.7vlSJ7MHDgOG.ZjsIB1Uky3KoLnms.W",
+    "name": "Staff WH2",
+    "role": "staff",
+    "warehouseAccess": [
+      "WH2",
+      "WH2-1"
+    ],
+    "active": true,
+    "createdAt": "2026-05-11T10:04:03.991Z"
+  },
+  {
+    "id": "0d5687f1-3b22-4511-8f69-024ec33d31bf",
+    "username": "readonly",
+    "password": "$2b$10$FAfbcnAGxv657Aq0eIV24OF8o9ztdGwgacIQlj7/lQXNLKtfiu9ym",
+    "name": "Read Only User",
+    "role": "readonly",
+    "warehouseAccess": [],
+    "active": true,
+    "createdAt": "2026-05-11T10:04:04.076Z"
+  }
+]

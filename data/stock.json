@@ -1,0 +1,90 @@
+[
+  {
+    "id": "49524825-f699-47eb-afbf-9ae9a6b8c3fe",
+    "itemCode": "M00044",
+    "itemName": "Ankle Brace (Sego Breath) size M",
+    "batchNumber": "95518",
+    "warehouseCode": "WH2",
+    "binCode": "ALA-1-1",
+    "quantity": 50,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T11:01:09.993Z"
+  },
+  {
+    "id": "25db7d61-6509-4a0a-b289-459249ac1d6a",
+    "itemCode": "M00064",
+    "itemName": "ELNOVA Surgical Lumbo Sacral Corset (large)",
+    "batchNumber": "87382",
+    "warehouseCode": "WH2",
+    "binCode": "ALA-1-2",
+    "quantity": 400,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T11:01:09.474Z"
+  },
+  {
+    "id": "08911881-0662-472d-89af-bfc01b052c5f",
+    "itemCode": "M00067",
+    "itemName": "ELNOVA Surgical Lumbo Sacral Corset (x-large)",
+    "batchNumber": "87383",
+    "warehouseCode": "WH2",
+    "binCode": "ALA-1-3",
+    "quantity": 4500,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T11:01:09.155Z"
+  },
+  {
+    "id": "880d091b-7bf0-441b-971f-22bdc9cf9626",
+    "itemCode": "M00097",
+    "itemName": "Knitted Knee Support Plain (Sego) (medium)",
+    "batchNumber": "95512",
+    "warehouseCode": "WH2",
+    "binCode": "ALA-1-5",
+    "quantity": 1000,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T11:01:09.147Z"
+  },
+  {
+    "id": "37ba7930-ade4-49be-b9f9-cc843032634d",
+    "itemCode": "M00099",
+    "itemName": "Knitted Knee Support Plain (Sego) (x-large)",
+    "batchNumber": "95507",
+    "warehouseCode": "WH2",
+    "binCode": "ALA-1-4",
+    "quantity": 200,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T11:01:09.140Z"
+  },
+  {
+    "id": "83c892fe-f153-405f-8c90-106c4d32ba6b",
+    "itemCode": "D00001",
+    "itemName": "Amoxicillin and Clavulanate Inj. (1.2 g) (1X10)",
+    "batchNumber": "k011210",
+    "warehouseCode": "WH1",
+    "binCode": "A2",
+    "quantity": 1000,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T10:51:25.310Z"
+  },
+  {
+    "id": "d4d51bf5-ab0b-460a-80ee-be301719dcf7",
+    "itemCode": "D00002",
+    "itemName": "Ceftriaxone Sodium for Injection 1 g (1x10)",
+    "batchNumber": "C010010",
+    "warehouseCode": "WH1",
+    "binCode": "A4",
+    "quantity": 1000,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T10:51:25.310Z"
+  },
+  {
+    "id": "252567aa-3a85-40e7-9066-96e56208fe93",
+    "itemCode": "D00001",
+    "itemName": "Amoxicillin and Clavulanate Inj. (1.2 g) (1X10)",
+    "batchNumber": "test1",
+    "warehouseCode": "WH1",
+    "binCode": "A1",
+    "quantity": 500,
+    "unit": "EA",
+    "updatedAt": "2026-05-11T10:55:16.200Z"
+  }
+]

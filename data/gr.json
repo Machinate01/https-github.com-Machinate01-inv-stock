@@ -1,0 +1,30 @@
+[
+  {
+    "id": "8d8f80e8-7758-4d69-a41c-799c4c2defe6",
+    "docNumber": "GR-2026-0001",
+    "docDate": "2026-05-11",
+    "postingDate": "2026-05-11",
+    "type": "general",
+    "remark": "test",
+    "lines": [
+      {
+        "lineNum": 1,
+        "itemCode": "D00001",
+        "itemName": "Amoxicillin and Clavulanate Inj. (1.2 g) (1X10)",
+        "qty": 2000,
+        "unit": "EA",
+        "batchNumber": "test1",
+        "expiryDate": "2026-05-11",
+        "manufacturingDate": "",
+        "warehouseCode": "WH1",
+        "binCode": "A1",
+        "reason": "PO.12355"
+      }
+    ],
+    "status": "confirmed",
+    "createdBy": "admin",
+    "createdAt": "2026-05-11T10:46:27.252Z",
+    "confirmedBy": "admin",
+    "confirmedAt": "2026-05-11T10:53:31.609Z"
+  }
+]

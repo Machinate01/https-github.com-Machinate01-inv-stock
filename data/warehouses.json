@@ -1,0 +1,18 @@
+[
+  { "code": "WH1",     "name": "คลังหลัก",               "description": "Main Warehouse - Storage Room", "active": true },
+  { "code": "WH1-1",   "name": "คลังรอเข้าคลังหลัก",     "description": "Staging area before WH1",      "active": true },
+  { "code": "WH2",     "name": "คลังรอง",                "description": "Secondary Warehouse",           "active": true },
+  { "code": "WH2-1",   "name": "Taching",                "description": "TA/TB Room - ยา สมุนไพร เสริมอาหาร", "active": true },
+  { "code": "WH2-THPD","name": "คลังไปรษณีย์ไทย",        "description": "Thai Post Warehouse",           "active": true },
+  { "code": "WH3",     "name": "คลังทำลาย",              "description": "Destruction Warehouse",         "active": true },
+  { "code": "WH4",     "name": "คลังสินค้าตัวอย่าง",     "description": "Sample Warehouse",             "active": true },
+  { "code": "WH5",     "name": "คลังยายืม",              "description": "Lending Warehouse",             "active": true },
+  { "code": "WH6",     "name": "คลังลดหนี้",             "description": "Credit Note Warehouse",         "active": true },
+  { "code": "WH7",     "name": "คลัง Glacier",           "description": "Glacier Warehouse",             "active": true },
+  { "code": "WH8",     "name": "คลังรับฝาก",             "description": "Consignment Warehouse",         "active": true },
+  { "code": "WH09",    "name": "คลังรอจ่าย",             "description": "Pending Delivery Warehouse",    "active": true },
+  { "code": "WH10",    "name": "คลังยายับ",              "description": "Cancelled Warehouse",           "active": true },
+  { "code": "WH12",    "name": "คลังรอเคลมสินค้า",       "description": "Claim Pending Warehouse",       "active": true },
+  { "code": "WH13",    "name": "คลัง Quarantine",        "description": "Quarantine Warehouse",          "active": true },
+  { "code": "WH99",    "name": "คลังปรับปรุง",           "description": "Adjustment Warehouse",          "active": true }
+]

@@ -1,0 +1,117 @@
+[
+  {
+    "id": "e6f2f1d3-b72b-4cf8-a11c-a7472f13d350",
+    "docNumber": "PUT-GRPO-2026-0001",
+    "sourceType": "GRPO",
+    "sourceDocNumber": "GRPO-2026-0001",
+    "docDate": "2026-05-11",
+    "lines": [
+      {
+        "lineNum": 1,
+        "itemCode": "M00044",
+        "itemName": "Ankle Brace (Sego Breath) size M",
+        "batchNumber": "95518",
+        "qty": 50,
+        "unit": "EA",
+        "suggestedBin": "",
+        "actualBin": "ALA-1-1",
+        "warehouseCode": "WH2",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:19:13.337Z"
+      },
+      {
+        "lineNum": 2,
+        "itemCode": "M00064",
+        "itemName": "ELNOVA Surgical Lumbo Sacral Corset (large)",
+        "batchNumber": "87382",
+        "qty": 400,
+        "unit": "EA",
+        "suggestedBin": "",
+        "actualBin": "ALA-1-2",
+        "warehouseCode": "WH2",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:19:13.343Z"
+      },
+      {
+        "lineNum": 3,
+        "itemCode": "M00067",
+        "itemName": "ELNOVA Surgical Lumbo Sacral Corset (x-large)",
+        "batchNumber": "87383",
+        "qty": 4500,
+        "unit": "EA",
+        "suggestedBin": "",
+        "actualBin": "ALA-1-3",
+        "warehouseCode": "WH2",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:19:13.349Z"
+      },
+      {
+        "lineNum": 4,
+        "itemCode": "M00097",
+        "itemName": "Knitted Knee Support Plain (Sego) (medium)",
+        "batchNumber": "95512",
+        "qty": 1000,
+        "unit": "EA",
+        "suggestedBin": "",
+        "actualBin": "ALA-1-4",
+        "warehouseCode": "WH2",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:19:13.710Z"
+      },
+      {
+        "lineNum": 5,
+        "itemCode": "M00099",
+        "itemName": "Knitted Knee Support Plain (Sego) (x-large)",
+        "batchNumber": "95507",
+        "qty": 200,
+        "unit": "EA",
+        "suggestedBin": "",
+        "actualBin": "ALA-1-5",
+        "warehouseCode": "WH2",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:19:15.938Z"
+      }
+    ],
+    "status": "completed",
+    "createdBy": "admin",
+    "createdAt": "2026-05-11T10:18:45.733Z"
+  },
+  {
+    "id": "840f0148-f9ce-4a16-b7d6-bc5a9951fb26",
+    "docNumber": "PUT-GRPO-2026-0002",
+    "sourceType": "GRPO",
+    "sourceDocNumber": "GRPO-2026-0002",
+    "docDate": "2026-05-11",
+    "lines": [
+      {
+        "lineNum": 1,
+        "itemCode": "D00001",
+        "itemName": "Amoxicillin and Clavulanate Inj. (1.2 g) (1X10)",
+        "batchNumber": "k011210",
+        "qty": 1500,
+        "unit": "EA",
+        "suggestedBin": "A2",
+        "actualBin": "B3",
+        "warehouseCode": "WH1",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:49:15.704Z"
+      },
+      {
+        "lineNum": 2,
+        "itemCode": "D00002",
+        "itemName": "Ceftriaxone Sodium for Injection 1 g (1x10)",
+        "batchNumber": "C010010",
+        "qty": 1500,
+        "unit": "EA",
+        "suggestedBin": "A4",
+        "actualBin": "B1",
+        "warehouseCode": "WH1",
+        "status": "completed",
+        "completedAt": "2026-05-11T10:49:14.485Z"
+      }
+    ],
+    "status": "completed",
+    "createdBy": "admin",
+    "createdAt": "2026-05-11T10:48:49.731Z"
+  }
+]
