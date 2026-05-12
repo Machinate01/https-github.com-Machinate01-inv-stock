@@ -1,59 +1,93 @@
-import fs from 'fs';
-import path from 'path';
+import { createClient } from '@libsql/client';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const client = createClient({
+  url: process.env.TURSO_DATABASE_URL!,
+  authToken: process.env.TURSO_AUTH_TOKEN,
+});
 
-export function readJson<T>(filename: string): T[] {
-  const filePath = path.join(DATA_DIR, filename);
-  if (!fs.existsSync(filePath)) return [];
-  const content = fs.readFileSync(filePath, 'utf-8');
-  try { return JSON.parse(content); } catch { return []; }
+// Initialize KV table on first use
+let initialized = false;
+async function ensureTable() {
+  if (initialized) return;
+  await client.execute(`
+    CREATE TABLE IF NOT EXISTS kv (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL DEFAULT '[]'
+    )
+  `);
+  await client.execute(`
+    CREATE TABLE IF NOT EXISTS counters (
+      key   TEXT PRIMARY KEY,
+      value INTEGER NOT NULL DEFAULT 0
+    )
+  `);
+  initialized = true;
 }
 
-export function writeJson<T>(filename: string, data: T[]): void {
-  const filePath = path.join(DATA_DIR, filename);
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+export async function readJson<T>(key: string): Promise<T[]> {
+  await ensureTable();
+  const result = await client.execute({
+    sql: 'SELECT value FROM kv WHERE key = ?',
+    args: [key],
+  });
+  if (result.rows.length === 0) return [];
+  try { return JSON.parse(result.rows[0].value as string); } catch { return []; }
 }
 
-export function appendJson<T>(filename: string, item: T): void {
-  const data = readJson<T>(filename);
+export async function writeJson<T>(key: string, data: T[]): Promise<void> {
+  await ensureTable();
+  await client.execute({
+    sql: 'INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)',
+    args: [key, JSON.stringify(data)],
+  });
+}
+
+export async function appendJson<T>(key: string, item: T): Promise<void> {
+  const data = await readJson<T>(key);
   data.push(item);
-  writeJson(filename, data);
+  await writeJson(key, data);
 }
 
-export function updateJson<T extends { id: string }>(filename: string, id: string, updates: Partial<T>): T | null {
-  const data = readJson<T>(filename);
+export async function updateJson<T extends { id: string }>(
+  key: string, id: string, updates: Partial<T>
+): Promise<T | null> {
+  const data = await readJson<T>(key);
   const idx = data.findIndex((item: T) => item.id === id);
   if (idx === -1) return null;
   data[idx] = { ...data[idx], ...updates };
-  writeJson(filename, data);
+  await writeJson(key, data);
   return data[idx];
 }
 
-export function deleteJson<T extends { id: string }>(filename: string, id: string): boolean {
-  const data = readJson<T>(filename);
+export async function deleteJson<T extends { id: string }>(
+  key: string, id: string
+): Promise<boolean> {
+  const data = await readJson<T>(key);
   const filtered = data.filter((item: T) => item.id !== id);
   if (filtered.length === data.length) return false;
-  writeJson(filename, filtered);
+  await writeJson(key, filtered);
   return true;
 }
 
-export function findById<T extends { id: string }>(filename: string, id: string): T | null {
-  const data = readJson<T>(filename);
+export async function findById<T extends { id: string }>(
+  key: string, id: string
+): Promise<T | null> {
+  const data = await readJson<T>(key);
   return data.find((item: T) => item.id === id) || null;
 }
 
-// Counter for document numbers
-export function getNextDocNumber(prefix: string): string {
+export async function getNextDocNumber(prefix: string): Promise<string> {
+  await ensureTable();
   const year = new Date().getFullYear();
-  const countersFile = path.join(DATA_DIR, 'counters.json');
-  let counters: Record<string, number> = {};
-  if (fs.existsSync(countersFile)) {
-    try { counters = JSON.parse(fs.readFileSync(countersFile, 'utf-8')); } catch { counters = {}; }
-  }
-  const key = `${prefix}-${year}`;
-  counters[key] = (counters[key] || 0) + 1;
-  fs.writeFileSync(countersFile, JSON.stringify(counters, null, 2), 'utf-8');
-  return `${prefix}-${year}-${String(counters[key]).padStart(4, '0')}`;
+  const counterKey = `${prefix}-${year}`;
+  await client.execute({
+    sql: 'INSERT INTO counters (key, value) VALUES (?, 1) ON CONFLICT(key) DO UPDATE SET value = value + 1',
+    args: [counterKey],
+  });
+  const result = await client.execute({
+    sql: 'SELECT value FROM counters WHERE key = ?',
+    args: [counterKey],
+  });
+  const num = result.rows[0].value as number;
+  return `${prefix}-${year}-${String(num).padStart(4, '0')}`;
 }

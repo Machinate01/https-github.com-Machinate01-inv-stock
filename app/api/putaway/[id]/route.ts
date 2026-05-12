@@ -6,7 +6,7 @@ import { getSession } from '@/lib/utils/auth';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<PutawayTask>('putaway.json', id);
+  const doc = await findById<PutawayTask>('putaway.json', id);
   if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(doc);
 }
@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json();
-  const docs = readJson<PutawayTask>('putaway.json');
+  const docs = await readJson<PutawayTask>('putaway.json');
   const idx = docs.findIndex(d => d.id === id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   const doc = docs[idx];
@@ -33,7 +33,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!line) return NextResponse.json({ error: 'Line not found' }, { status: 404 });
 
     // Update stock.json — add qty to the actual bin
-    const stock = readJson<StockEntry>('stock.json');
+    const stock = await readJson<StockEntry>('stock.json');
     const sIdx = stock.findIndex(s =>
       s.itemCode === line.itemCode &&
       s.batchNumber === line.batchNumber &&
@@ -85,10 +85,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       else stock[ghostIdx].updatedAt = now;
     }
 
-    writeJson('stock.json', stock);
+    await writeJson('stock.json', stock);
 
     // batch_transactions — record putaway movement
-    const txns = readJson<BatchTransaction>('batch_transactions.json');
+    const txns = await readJson<BatchTransaction>('batch_transactions.json');
     const prevTxns = txns.filter(t => t.itemCode === line.itemCode && t.batchNumber === line.batchNumber);
     const lastBalance = prevTxns.length > 0 ? prevTxns[prevTxns.length - 1].balanceQty : line.qty;
     txns.push({
@@ -109,7 +109,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       createdAt: now,
       remark: `Putaway: ${doc.sourceDocNumber} → ${actualBin}`,
     });
-    writeJson('batch_transactions.json', txns);
+    await writeJson('batch_transactions.json', txns);
 
     // Update putaway line status
     docs[idx].lines = doc.lines.map(l =>
@@ -120,18 +120,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const allDone = docs[idx].lines.every(l => l.status === 'completed');
     docs[idx].status = allDone ? 'completed' : 'in_progress';
     if (allDone) docs[idx].completedAt = now;
-    writeJson('putaway.json', docs);
+    await writeJson('putaway.json', docs);
 
     // Update source doc status when all done
     if (allDone) {
       if (doc.sourceType === 'GRPO') {
-        const grpos = readJson<GRPO>('grpo.json');
+        const grpos = await readJson<GRPO>('grpo.json');
         const gi = grpos.findIndex(g => g.docNumber === doc.sourceDocNumber);
-        if (gi >= 0) { grpos[gi].status = 'completed'; writeJson('grpo.json', grpos); }
+        if (gi >= 0) { grpos[gi].status = 'completed'; await writeJson('grpo.json', grpos); }
       } else {
-        const grs = readJson<GoodsReceipt>('gr.json');
+        const grs = await readJson<GoodsReceipt>('gr.json');
         const gi = grs.findIndex(g => g.docNumber === doc.sourceDocNumber);
-        if (gi >= 0) { grs[gi].status = 'completed'; writeJson('gr.json', grs); }
+        if (gi >= 0) { grs[gi].status = 'completed'; await writeJson('gr.json', grs); }
       }
     }
     return NextResponse.json(docs[idx]);
@@ -147,11 +147,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }));
     docs[idx].status = 'completed';
     docs[idx].completedAt = now;
-    writeJson('putaway.json', docs);
+    await writeJson('putaway.json', docs);
     return NextResponse.json(docs[idx]);
   }
 
   docs[idx] = { ...doc, ...body };
-  writeJson('putaway.json', docs);
+  await writeJson('putaway.json', docs);
   return NextResponse.json(docs[idx]);
 }

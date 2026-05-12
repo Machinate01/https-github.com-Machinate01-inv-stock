@@ -8,11 +8,11 @@ export async function GET(req: Request) {
 
   if (warehouseCode) {
     // Return bins for a specific warehouse
-    const bins = readJson<BinLocation>('bins.json')
+    const bins = (await readJson<BinLocation>('bins.json'))
       .filter(b => b.warehouseCode === warehouseCode && b.active);
     return NextResponse.json(bins);
   }
 
-  const warehouses = readJson<Warehouse>('warehouses.json').filter(w => w.active);
+  const warehouses = (await readJson<Warehouse>('warehouses.json')).filter(w => w.active);
   return NextResponse.json(warehouses);
 }

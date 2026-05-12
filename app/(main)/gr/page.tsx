@@ -13,7 +13,7 @@ const statusLabel: Record<string, { label: string; color: string }> = {
 const typeLabel: Record<string, string> = { general: 'รับทั่วไป', return: 'รับคืน', adjustment: 'ปรับปรุง' };
 
 export default async function GRListPage() {
-  const docs = readJson<GoodsReceipt>('gr.json').sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const docs = (await readJson<GoodsReceipt>('gr.json')).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

@@ -7,7 +7,7 @@ import { getSession } from '@/lib/utils/auth';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
-  let docs = readJson<GoodsIssue>('gi.json');
+  let docs = await readJson<GoodsIssue>('gi.json');
   if (status) docs = docs.filter(d => d.status === status);
   return NextResponse.json(docs.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
 }
@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json();
-  const docNumber = getNextDocNumber('GI');
-  const plNumber = getNextDocNumber('PL');
+  const docNumber = await getNextDocNumber('GI');
+  const plNumber = await getNextDocNumber('PL');
 
   const doc: GoodsIssue = {
     id: uuidv4(),
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   };
 
   doc.pickListId = pickList.id;
-  appendJson('gi.json', doc);
-  appendJson('picklist.json', pickList);
+  await appendJson('gi.json', doc);
+  await appendJson('picklist.json', pickList);
   return NextResponse.json({ gi: doc, pickList }, { status: 201 });
 }

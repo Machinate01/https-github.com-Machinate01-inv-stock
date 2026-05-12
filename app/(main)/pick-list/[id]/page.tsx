@@ -7,7 +7,7 @@ import PickActions from './PickActions';
 
 export default async function PickListDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<PickList>('picklist.json', id);
+  const doc = await findById<PickList>('picklist.json', id);
   if (!doc) notFound();
 
   const pickedLines = doc.lines.filter(l => l.status === 'picked').length;

@@ -6,7 +6,7 @@ import { getSession } from '@/lib/utils/auth';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<GRPO>('grpo.json', id);
+  const doc = await findById<GRPO>('grpo.json', id);
   if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(doc);
 }
@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json();
-  const docs = readJson<GRPO>('grpo.json');
+  const docs = await readJson<GRPO>('grpo.json');
   const idx = docs.findIndex(d => d.id === id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -47,7 +47,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       status: 'pending',
     }));
 
-    const putaways = readJson<PutawayTask>('putaway.json');
+    const putaways = await readJson<PutawayTask>('putaway.json');
     const putawayTask: PutawayTask = {
       id: uuidv4(),
       docNumber: `PUT-${doc.docNumber}`,
@@ -60,8 +60,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       createdAt: new Date().toISOString(),
     };
     putaways.push(putawayTask);
-    writeJson('putaway.json', putaways);
-    writeJson('grpo.json', docs);
+    await writeJson('putaway.json', putaways);
+    await writeJson('grpo.json', docs);
     return NextResponse.json(docs[idx]);
   }
 
@@ -70,8 +70,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     docs[idx] = { ...doc, status: 'completed' };
 
     const now = new Date().toISOString();
-    const txns = readJson<BatchTransaction>('batch_transactions.json');
-    const stock = readJson<StockEntry>('stock.json');
+    const txns = await readJson<BatchTransaction>('batch_transactions.json');
+    const stock = await readJson<StockEntry>('stock.json');
 
     doc.lines.forEach(line => {
       // Batch transaction
@@ -116,14 +116,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
     });
 
-    writeJson('batch_transactions.json', txns);
-    writeJson('stock.json', stock);
-    writeJson('grpo.json', docs);
+    await writeJson('batch_transactions.json', txns);
+    await writeJson('stock.json', stock);
+    await writeJson('grpo.json', docs);
     return NextResponse.json(docs[idx]);
   }
 
   // General update
   docs[idx] = { ...doc, ...body };
-  writeJson('grpo.json', docs);
+  await writeJson('grpo.json', docs);
   return NextResponse.json(docs[idx]);
 }

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const dateFrom = searchParams.get('dateFrom') || '';
   const dateTo = searchParams.get('dateTo') || '';
 
-  let txns = readJson<BatchTransaction>('batch_transactions.json');
+  let txns = await readJson<BatchTransaction>('batch_transactions.json');
 
   if (batch) txns = txns.filter(t => t.batchNumber.toLowerCase().includes(batch));
   if (item) txns = txns.filter(t => t.itemCode.toLowerCase().includes(item) || t.itemName.toLowerCase().includes(item));

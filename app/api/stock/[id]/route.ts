@@ -6,7 +6,7 @@ import { getSession } from '@/lib/utils/auth';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const entry = findById<StockEntry>('stock.json', id);
+  const entry = await findById<StockEntry>('stock.json', id);
   if (!entry) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(entry);
 }
@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json();
-  const stock = readJson<StockEntry>('stock.json');
+  const stock = await readJson<StockEntry>('stock.json');
   const idx = stock.findIndex(s => s.id === id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -48,10 +48,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       stock[idx] = { ...entry, binCode, warehouseCode: warehouseCode || entry.warehouseCode, updatedAt: now };
     }
 
-    writeJson('stock.json', stock);
+    await writeJson('stock.json', stock);
 
     // Record batch transaction
-    const txns = readJson<BatchTransaction>('batch_transactions.json');
+    const txns = await readJson<BatchTransaction>('batch_transactions.json');
     const prevTxns = txns.filter(t => t.itemCode === entry.itemCode && t.batchNumber === entry.batchNumber);
     const lastBalance = prevTxns.length > 0 ? prevTxns[prevTxns.length - 1].balanceQty : entry.quantity;
     txns.push({
@@ -72,7 +72,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       createdAt: now,
       remark: `กำหนด Location → ${binCode}`,
     });
-    writeJson('batch_transactions.json', txns);
+    await writeJson('batch_transactions.json', txns);
 
     return NextResponse.json(targetIdx >= 0 ? stock[targetIdx] : stock[idx]);
   }

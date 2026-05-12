@@ -29,12 +29,12 @@ function StatCard({ title, value, sub, href, icon: Icon, color }: {
 
 export default async function DashboardPage() {
   const session = await getSession();
-  const grpos = readJson<GRPO>('grpo.json');
-  const grs = readJson<GoodsReceipt>('gr.json');
-  const gis = readJson<GoodsIssue>('gi.json');
-  const putaways = readJson<PutawayTask>('putaway.json');
-  const picklists = readJson<PickList>('picklist.json');
-  const txns = readJson<BatchTransaction>('batch_transactions.json');
+  const grpos = await readJson<GRPO>('grpo.json');
+  const grs = await readJson<GoodsReceipt>('gr.json');
+  const gis = await readJson<GoodsIssue>('gi.json');
+  const putaways = await readJson<PutawayTask>('putaway.json');
+  const picklists = await readJson<PickList>('picklist.json');
+  const txns = await readJson<BatchTransaction>('batch_transactions.json');
 
   const pendingGRPO = grpos.filter(d => ['draft', 'putaway_pending'].includes(d.status)).length;
   const pendingGR = grs.filter(d => ['draft', 'putaway_pending'].includes(d.status)).length;

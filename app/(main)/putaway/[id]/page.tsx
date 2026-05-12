@@ -7,7 +7,7 @@ import PutawayLineActions from './PutawayLineActions';
 
 export default async function PutawayDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<PutawayTask>('putaway.json', id);
+  const doc = await findById<PutawayTask>('putaway.json', id);
   if (!doc) notFound();
 
   const pendingLines = doc.lines.filter(l => l.status === 'pending');

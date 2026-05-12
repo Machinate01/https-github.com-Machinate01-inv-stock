@@ -7,7 +7,7 @@ import { getSession } from '@/lib/utils/auth';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
-  let docs = readJson<GoodsReceipt>('gr.json');
+  let docs = await readJson<GoodsReceipt>('gr.json');
   if (status) docs = docs.filter(d => d.status === status);
   return NextResponse.json(docs.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
 }
@@ -20,12 +20,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const doc: GoodsReceipt = {
     id: uuidv4(),
-    docNumber: getNextDocNumber('GR'),
+    docNumber: await getNextDocNumber('GR'),
     ...body,
     status: 'draft',
     createdBy: session.username,
     createdAt: new Date().toISOString(),
   };
-  appendJson('gr.json', doc);
+  await appendJson('gr.json', doc);
   return NextResponse.json(doc, { status: 201 });
 }

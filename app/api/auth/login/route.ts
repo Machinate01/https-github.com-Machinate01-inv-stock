@@ -6,7 +6,7 @@ import { createSession, COOKIE_NAME } from '@/lib/utils/auth';
 
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
-  const users = readJson<User>('users.json');
+  const users = await readJson<User>('users.json');
   const user = users.find(u => u.username === username && u.active);
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return NextResponse.json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' }, { status: 401 });

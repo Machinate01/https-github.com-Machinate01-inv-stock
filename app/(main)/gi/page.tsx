@@ -12,7 +12,7 @@ const statusLabel: Record<string, { label: string; color: string }> = {
 };
 
 export default async function GIListPage() {
-  const docs = readJson<GoodsIssue>('gi.json').sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const docs = (await readJson<GoodsIssue>('gi.json')).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return (
     <div>
       <div className="flex items-center justify-between mb-6">

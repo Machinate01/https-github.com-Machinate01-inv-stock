@@ -7,7 +7,7 @@ import { getSession } from '@/lib/utils/auth';
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get('status');
-  let docs = readJson<GRPO>('grpo.json');
+  let docs = await readJson<GRPO>('grpo.json');
   if (status) docs = docs.filter(d => d.status === status);
   return NextResponse.json(docs.sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
 }
@@ -20,12 +20,12 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const doc: GRPO = {
     id: uuidv4(),
-    docNumber: getNextDocNumber('GRPO'),
+    docNumber: await getNextDocNumber('GRPO'),
     ...body,
     status: 'draft',
     createdBy: session.username,
     createdAt: new Date().toISOString(),
   };
-  appendJson('grpo.json', doc);
+  await appendJson('grpo.json', doc);
   return NextResponse.json(doc, { status: 201 });
 }

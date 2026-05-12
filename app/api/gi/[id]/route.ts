@@ -6,7 +6,7 @@ import { getSession } from '@/lib/utils/auth';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<GoodsIssue>('gi.json', id);
+  const doc = await findById<GoodsIssue>('gi.json', id);
   if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(doc);
 }
@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json();
-  const docs = readJson<GoodsIssue>('gi.json');
+  const docs = await readJson<GoodsIssue>('gi.json');
   const idx = docs.findIndex(d => d.id === id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   const doc = docs[idx];
@@ -27,8 +27,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     docs[idx] = { ...doc, status: 'completed', confirmedBy: session.username, confirmedAt: new Date().toISOString() };
 
     const now = new Date().toISOString();
-    const txns = readJson<BatchTransaction>('batch_transactions.json');
-    const stock = readJson<StockEntry>('stock.json');
+    const txns = await readJson<BatchTransaction>('batch_transactions.json');
+    const stock = await readJson<StockEntry>('stock.json');
 
     doc.lines.forEach(line => {
       const existing = txns.filter(t => t.batchNumber === line.batchNumber && t.itemCode === line.itemCode);
@@ -58,13 +58,13 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       }
     });
 
-    writeJson('batch_transactions.json', txns);
-    writeJson('stock.json', stock);
-    writeJson('gi.json', docs);
+    await writeJson('batch_transactions.json', txns);
+    await writeJson('stock.json', stock);
+    await writeJson('gi.json', docs);
     return NextResponse.json(docs[idx]);
   }
 
   docs[idx] = { ...doc, ...body };
-  writeJson('gi.json', docs);
+  await writeJson('gi.json', docs);
   return NextResponse.json(docs[idx]);
 }

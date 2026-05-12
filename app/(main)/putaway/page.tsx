@@ -11,7 +11,7 @@ const statusLabel: Record<string, { label: string; color: string }> = {
 };
 
 export default async function PutawayPage() {
-  const docs = readJson<PutawayTask>('putaway.json').sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const docs = (await readJson<PutawayTask>('putaway.json')).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const pending = docs.filter(d => d.status !== 'completed');
   const done = docs.filter(d => d.status === 'completed');
 

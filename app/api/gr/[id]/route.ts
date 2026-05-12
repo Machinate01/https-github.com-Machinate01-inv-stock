@@ -6,7 +6,7 @@ import { getSession } from '@/lib/utils/auth';
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<GoodsReceipt>('gr.json', id);
+  const doc = await findById<GoodsReceipt>('gr.json', id);
   if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(doc);
 }
@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
   const body = await req.json();
-  const docs = readJson<GoodsReceipt>('gr.json');
+  const docs = await readJson<GoodsReceipt>('gr.json');
   const idx = docs.findIndex(d => d.id === id);
   if (idx === -1) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
@@ -27,8 +27,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   // Confirm GR → update stock & batch transactions directly
   if (body.action === 'confirm' && doc.status === 'draft') {
     const now = new Date().toISOString();
-    const txns = readJson<BatchTransaction>('batch_transactions.json');
-    const stock = readJson<StockEntry>('stock.json');
+    const txns = await readJson<BatchTransaction>('batch_transactions.json');
+    const stock = await readJson<StockEntry>('stock.json');
 
     doc.lines.forEach(line => {
       // Batch transaction
@@ -85,14 +85,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       confirmedAt: now,
     };
 
-    writeJson('batch_transactions.json', txns);
-    writeJson('stock.json', stock);
-    writeJson('gr.json', docs);
+    await writeJson('batch_transactions.json', txns);
+    await writeJson('stock.json', stock);
+    await writeJson('gr.json', docs);
     return NextResponse.json(docs[idx]);
   }
 
   // General update
   docs[idx] = { ...doc, ...body };
-  writeJson('gr.json', docs);
+  await writeJson('gr.json', docs);
   return NextResponse.json(docs[idx]);
 }

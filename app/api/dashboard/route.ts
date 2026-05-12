@@ -3,12 +3,12 @@ import { readJson } from '@/lib/data/db';
 import { GRPO, GoodsReceipt, GoodsIssue, PutawayTask, PickList, BatchTransaction, Batch } from '@/lib/types';
 
 export async function GET() {
-  const grpos = readJson<GRPO>('grpo.json');
-  const grs = readJson<GoodsReceipt>('gr.json');
-  const gis = readJson<GoodsIssue>('gi.json');
-  const putaways = readJson<PutawayTask>('putaway.json');
-  const picklists = readJson<PickList>('picklist.json');
-  const txns = readJson<BatchTransaction>('batch_transactions.json');
+  const grpos = await readJson<GRPO>('grpo.json');
+  const grs = await readJson<GoodsReceipt>('gr.json');
+  const gis = await readJson<GoodsIssue>('gi.json');
+  const putaways = await readJson<PutawayTask>('putaway.json');
+  const picklists = await readJson<PickList>('picklist.json');
+  const txns = await readJson<BatchTransaction>('batch_transactions.json');
 
   const stats = {
     totalTransactions: txns.length,

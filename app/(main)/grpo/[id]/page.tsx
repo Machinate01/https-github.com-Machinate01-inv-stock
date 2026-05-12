@@ -14,7 +14,7 @@ const statusLabel: Record<string, { label: string; color: string }> = {
 
 export default async function GRPODetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<GRPO>('grpo.json', id);
+  const doc = await findById<GRPO>('grpo.json', id);
   if (!doc) notFound();
   const st = statusLabel[doc.status];
 

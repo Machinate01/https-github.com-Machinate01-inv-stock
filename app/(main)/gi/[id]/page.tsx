@@ -15,7 +15,7 @@ const statusLabel: Record<string, { label: string; color: string }> = {
 
 export default async function GIDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const doc = findById<GoodsIssue>('gi.json', id);
+  const doc = await findById<GoodsIssue>('gi.json', id);
   if (!doc) notFound();
   const st = statusLabel[doc.status];
 
