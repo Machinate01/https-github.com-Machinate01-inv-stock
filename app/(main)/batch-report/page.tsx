@@ -54,6 +54,28 @@ export default function BatchReportPage() {
   const totalIn = txns.reduce((s, t) => s + t.qtyIn, 0);
   const totalOut = txns.reduce((s, t) => s + t.qtyOut, 0);
 
+  // Recalculate running balance per (itemCode + batchNumber + warehouseCode)
+  const txnsWithCalcBalance = (() => {
+    const sorted = [...txns].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const whBalance: Record<string, number> = {};
+    const result = sorted.map(t => {
+      const key = `${t.itemCode}|${t.batchNumber}|${t.warehouseCode}`;
+      whBalance[key] = (whBalance[key] || 0) + t.qtyIn - t.qtyOut;
+      return { ...t, calcBalance: whBalance[key] };
+    });
+    return result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  })();
+
+  // WH balance summary (last known balance per WH)
+  const whSummary = (() => {
+    const map: Record<string, number> = {};
+    txnsWithCalcBalance.forEach(t => {
+      const key = `${t.warehouseCode}`;
+      if (!(key in map)) map[key] = t.calcBalance;
+    });
+    return Object.entries(map).sort(([a], [b]) => a.localeCompare(b));
+  })();
+
   return (
     <div>
       <div className="mb-6">
@@ -131,20 +153,43 @@ export default function BatchReportPage() {
 
       {/* Summary */}
       {searched && (
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-            <p className="text-xs text-slate-400 mb-1">รายการทั้งหมด</p>
-            <p className="text-2xl font-bold text-slate-700">{txns.length}</p>
+        <>
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+              <p className="text-xs text-slate-400 mb-1">รายการทั้งหมด</p>
+              <p className="text-2xl font-bold text-slate-700">{txns.length}</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1"><TrendingUp className="w-3 h-3 text-green-500" /> จำนวนรับเข้า</p>
+              <p className="text-2xl font-bold text-green-600">+{totalIn.toLocaleString()}</p>
+            </div>
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
+              <p className="text-xs text-slate-400 mb-1 flex items-center gap-1"><TrendingDown className="w-3 h-3 text-red-500" /> จำนวนจ่ายออก</p>
+              <p className="text-2xl font-bold text-red-600">-{totalOut.toLocaleString()}</p>
+            </div>
           </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-            <p className="text-xs text-slate-400 mb-1 flex items-center gap-1"><TrendingUp className="w-3 h-3 text-green-500" /> จำนวนรับเข้า</p>
-            <p className="text-2xl font-bold text-green-600">+{totalIn.toLocaleString()}</p>
-          </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
-            <p className="text-xs text-slate-400 mb-1 flex items-center gap-1"><TrendingDown className="w-3 h-3 text-red-500" /> จำนวนจ่ายออก</p>
-            <p className="text-2xl font-bold text-red-600">-{totalOut.toLocaleString()}</p>
-          </div>
-        </div>
+
+          {/* WH Balance summary */}
+          {whSummary.length > 0 && (
+            <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+              <p className="text-xs font-semibold text-slate-500 uppercase mb-3">คงเหลือปัจจุบันแยกตามคลัง (คำนวณจากรายการ)</p>
+              <div className="flex flex-wrap gap-3">
+                {whSummary.map(([wh, bal]) => (
+                  <div key={wh} className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${bal > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                    <span className="text-sm font-semibold text-slate-600">{wh}</span>
+                    <span className={`text-lg font-bold ${bal > 0 ? 'text-green-700' : 'text-red-600'}`}>{bal.toLocaleString()}</span>
+                  </div>
+                ))}
+                <div className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-indigo-50 border-indigo-200">
+                  <span className="text-sm font-semibold text-slate-600">รวมทั้งหมด</span>
+                  <span className="text-lg font-bold text-indigo-700">
+                    {whSummary.reduce((s, [, v]) => s + v, 0).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Table */}
@@ -178,7 +223,7 @@ export default function BatchReportPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {txns.map(t => (
+                  {txnsWithCalcBalance.map(t => (
                     <tr key={t.id} className="hover:bg-slate-50">
                       <td className="px-4 py-3">
                         <span className={`px-2 py-0.5 rounded text-xs font-medium ${TYPE_COLOR[t.transactionType] || 'bg-slate-100 text-slate-600'}`}>
@@ -200,10 +245,10 @@ export default function BatchReportPage() {
                       <td className="px-4 py-3 text-right font-semibold text-green-600">{t.qtyIn > 0 ? `+${t.qtyIn}` : '-'}</td>
                       <td className="px-4 py-3 text-right font-semibold text-red-500">{t.qtyOut > 0 ? `-${t.qtyOut}` : '-'}</td>
                       <td className="px-4 py-3 text-right">
-                        <div className="font-bold text-slate-800">{t.balanceQty.toLocaleString()}</div>
-                        {t.binCode && (
-                          <div className="text-xs text-indigo-600 font-mono mt-0.5">{t.warehouseCode}/{t.binCode}</div>
-                        )}
+                        <div className={`font-bold ${t.calcBalance < 0 ? 'text-red-600' : 'text-slate-800'}`}>
+                          {t.calcBalance.toLocaleString()}
+                        </div>
+                        <div className="text-xs text-indigo-500 font-mono mt-0.5">{t.warehouseCode}</div>
                       </td>
                       <td className="px-4 py-3 text-slate-400 text-xs">{t.remark || '-'}</td>
                     </tr>
