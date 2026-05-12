@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { readJson, appendJson, writeJson, getNextDocNumber } from '@/lib/data/db';
+import { readJson, appendJson, getNextDocNumber } from '@/lib/data/db';
 import { GoodsIssue, PickList, PickListLine } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 import { getSession } from '@/lib/utils/auth';

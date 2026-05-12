@@ -1,7 +1,7 @@
 import { readJson } from '@/lib/data/db';
 import { GRPO } from '@/lib/types';
 import Link from 'next/link';
-import { Plus, FileInput, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Plus, FileInput } from 'lucide-react';
 
 const statusLabel: Record<string, { label: string; color: string }> = {
   draft:           { label: 'Draft', color: 'bg-slate-100 text-slate-600' },

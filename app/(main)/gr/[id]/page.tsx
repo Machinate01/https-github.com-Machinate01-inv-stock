@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
 
@@ -28,7 +28,6 @@ const typeLabel: Record<string, string> = {
 
 export default function GRDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [doc, setDoc] = useState<GR | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);

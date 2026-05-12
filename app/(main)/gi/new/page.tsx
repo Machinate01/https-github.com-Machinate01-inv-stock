@@ -187,7 +187,7 @@ export default function NewGIPage() {
           {lines.length === 0 ? (
             <div className="text-center py-10 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-lg">
               <Package className="w-8 h-8 mx-auto mb-2 opacity-30" />
-              คลิก "เพิ่มรายการ" เพื่อเลือกสินค้าจาก Stock
+              คลิก &quot;เพิ่มรายการ&quot; เพื่อเลือกสินค้าจาก Stock
             </div>
           ) : (
             <div className="space-y-3">

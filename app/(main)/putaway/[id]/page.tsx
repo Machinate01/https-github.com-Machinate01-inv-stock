@@ -1,5 +1,5 @@
-import { findById, readJson } from '@/lib/data/db';
-import { PutawayTask, BinLocation } from '@/lib/types';
+import { findById } from '@/lib/data/db';
+import { PutawayTask } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
@@ -10,7 +10,6 @@ export default async function PutawayDetailPage({ params }: { params: Promise<{ 
   const doc = await findById<PutawayTask>('putaway.json', id);
   if (!doc) notFound();
 
-  const pendingLines = doc.lines.filter(l => l.status === 'pending');
   const completedLines = doc.lines.filter(l => l.status === 'completed');
 
   return (

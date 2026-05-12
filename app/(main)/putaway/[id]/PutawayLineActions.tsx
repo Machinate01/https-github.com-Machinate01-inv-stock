@@ -19,9 +19,16 @@ export default function PutawayLineActions({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLDivElement>(null);
 
+  async function loadBinsList(code: string) {
+    const data: Bin[] = await fetch(`/api/warehouses?warehouse=${code}`).then(r => r.json());
+    setAllBins(data);
+  }
+
   useEffect(() => {
     fetch('/api/warehouses').then(r => r.json()).then(setWarehouses);
-    loadBinsList(warehouseCode);
+    fetch(`/api/warehouses?warehouse=${warehouseCode}`)
+      .then(r => r.json())
+      .then((data: Bin[]) => setAllBins(data));
   }, [warehouseCode]);
 
   useEffect(() => {
@@ -32,11 +39,6 @@ export default function PutawayLineActions({
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
-
-  async function loadBinsList(code: string) {
-    const data: Bin[] = await fetch(`/api/warehouses?warehouse=${code}`).then(r => r.json());
-    setAllBins(data);
-  }
 
   async function changeWarehouse(code: string) {
     setWh(code);
@@ -111,7 +113,7 @@ export default function PutawayLineActions({
             {filtered.length === 0 ? (
               <div className="px-3 py-2.5 text-xs text-slate-400">
                 {query ? (
-                  <span>ไม่พบ Bin "<strong>{query}</strong>" — จะสร้างใหม่</span>
+                  <span>ไม่พบ Bin &quot;<strong>{query}</strong>&quot; — จะสร้างใหม่</span>
                 ) : 'ไม่มี Bin ในคลังนี้'}
               </div>
             ) : (
@@ -132,7 +134,7 @@ export default function PutawayLineActions({
                     onMouseDown={() => selectBin(query)}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-amber-50 text-amber-700 font-medium border-t border-slate-100"
                   >
-                    + ใช้ "{query}" (Bin ใหม่)
+                    + ใช้ &quot;{query}&quot; (Bin ใหม่)
                   </button>
                 )}
               </>

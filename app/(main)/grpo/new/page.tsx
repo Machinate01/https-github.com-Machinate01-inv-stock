@@ -130,7 +130,7 @@ export default function NewGRPOPage() {
 
           {lines.length === 0 ? (
             <div className="text-center py-8 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-lg">
-              คลิก "เพิ่มรายการ" เพื่อเพิ่มสินค้า
+              คลิก &quot;เพิ่มรายการ&quot; เพื่อเพิ่มสินค้า
             </div>
           ) : (
             <div className="space-y-3">

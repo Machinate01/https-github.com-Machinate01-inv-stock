@@ -15,19 +15,21 @@ function BinAssigner({ entry, warehouses, onDone }: { entry: StockEntry; warehou
   const [saving, setSaving] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  async function loadBins(code: string) {
+    const data: Bin[] = await fetch(`/api/warehouses?warehouse=${code}`).then(r => r.json());
+    setAllBins(data);
+  }
+
   useEffect(() => {
-    loadBins(entry.warehouseCode);
+    fetch(`/api/warehouses?warehouse=${entry.warehouseCode}`)
+      .then(r => r.json())
+      .then((data: Bin[]) => setAllBins(data));
     function handleClick(e: MouseEvent) {
       if (ref.current && !ref.current.contains(e.target as Node)) setShowSugg(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [entry.warehouseCode]);
-
-  async function loadBins(code: string) {
-    const data: Bin[] = await fetch(`/api/warehouses?warehouse=${code}`).then(r => r.json());
-    setAllBins(data);
-  }
 
   function changeWh(code: string) {
     setWh(code); setBin(''); setQuery('');
@@ -95,7 +97,7 @@ function BinAssigner({ entry, warehouses, onDone }: { entry: StockEntry; warehou
                 {query && !allBins.some(b => b.binCode === query) && (
                   <button type="button" onMouseDown={() => selectBin(query)}
                     className="w-full text-left px-3 py-2 text-xs hover:bg-amber-50 text-amber-700 font-medium border-t border-slate-100">
-                    + ใช้ "{query}" (Bin ใหม่)
+                    + ใช้ &quot;{query}&quot; (Bin ใหม่)
                   </button>
                 )}
               </>
@@ -119,18 +121,16 @@ export default function UnlocatedStock() {
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(true);
 
-  async function load() {
-    setLoading(true);
-    const [stock, whs] = await Promise.all([
+  useEffect(() => {
+    Promise.all([
       fetch('/api/stock').then(r => r.json()),
       fetch('/api/warehouses').then(r => r.json()),
-    ]);
-    setItems((stock as StockEntry[]).filter(s => !s.binCode));
-    setWarehouses(whs);
-    setLoading(false);
-  }
-
-  useEffect(() => { load(); }, []);
+    ]).then(([stock, whs]) => {
+      setItems((stock as StockEntry[]).filter((s: StockEntry) => !s.binCode));
+      setWarehouses(whs);
+      setLoading(false);
+    });
+  }, []);
 
   if (loading) return null;
   if (items.length === 0) return null;

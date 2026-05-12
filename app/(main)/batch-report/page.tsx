@@ -199,7 +199,7 @@ export default function BatchReportPage() {
       {!searched && (
         <div className="text-center py-16 text-slate-400">
           <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p>กรอกเงื่อนไขค้นหาแล้วกด "ค้นหา"</p>
+          <p>กรอกเงื่อนไขค้นหาแล้วกด &quot;ค้นหา&quot;</p>
         </div>
       )}
     </div>

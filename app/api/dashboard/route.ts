@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { readJson } from '@/lib/data/db';
-import { GRPO, GoodsReceipt, GoodsIssue, PutawayTask, PickList, BatchTransaction, Batch } from '@/lib/types';
+import { GRPO, GoodsReceipt, GoodsIssue, PutawayTask, PickList, BatchTransaction } from '@/lib/types';
 
 export async function GET() {
   const grpos = await readJson<GRPO>('grpo.json');

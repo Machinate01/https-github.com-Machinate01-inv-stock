@@ -2,7 +2,7 @@ import { findById } from '@/lib/data/db';
 import { GRPO } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle, MapPin } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import GRPOActions from './GRPOActions';
 
 const statusLabel: Record<string, { label: string; color: string }> = {

@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, FileInput, PackagePlus, PackageMinus,
   MapPin, ClipboardList, BarChart3, Package, LogOut,
-  ChevronRight, Warehouse
+  ChevronRight
 } from 'lucide-react';
 
 const navItems = [
