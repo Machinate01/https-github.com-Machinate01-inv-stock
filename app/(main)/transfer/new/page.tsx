@@ -45,7 +45,7 @@ function BinSearch({ value, onChange, bins, placeholder }: {
   function pick(code: string) { setQuery(code); onChange(code); setShow(false); }
 
   return (
-    <div ref={ref} className="relative">
+    <div ref={ref} className="relative overflow-visible">
       <div className="flex items-center border border-slate-300 rounded-lg overflow-hidden focus-within:ring-1 focus-within:ring-blue-500 bg-white">
         <Search className="w-3.5 h-3.5 text-slate-400 ml-2 flex-shrink-0" />
         <input type="text" value={query}
@@ -56,7 +56,7 @@ function BinSearch({ value, onChange, bins, placeholder }: {
         {isNew && <span className="text-xs bg-amber-100 text-amber-700 px-1.5 mr-1 rounded font-medium">ใหม่</span>}
       </div>
       {show && (
-        <div className="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 w-52 max-h-48 overflow-y-auto">
+        <div className="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[200] w-52 max-h-56 overflow-y-auto">
           {filtered.length === 0 ? (
             <div className="px-3 py-2 text-xs text-slate-400">
               {query ? `ไม่พบ "${query}" — จะใช้เป็น Bin ใหม่` : 'ไม่มี Bin'}
@@ -241,8 +241,8 @@ export default function NewTransferPage() {
         </div>
 
         {/* Lines */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="bg-white rounded-xl border border-slate-200">
+          <div className="px-5 py-4 border-b border-slate-100 rounded-t-xl flex items-center justify-between">
             <h2 className="font-semibold text-slate-700">รายการโอนย้าย</h2>
             <button type="button" onClick={addLine}
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1.5 text-sm font-medium transition">
