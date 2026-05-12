@@ -21,7 +21,8 @@ export default function LoginPage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(data.error); return; }
-    router.push('/dashboard');
+    router.refresh();
+    router.replace('/dashboard');
   }
 
   return (

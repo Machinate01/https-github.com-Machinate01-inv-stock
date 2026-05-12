@@ -13,6 +13,12 @@ export async function POST(req: NextRequest) {
   }
   const token = await createSession(user);
   const res = NextResponse.json({ success: true, user: { id: user.id, username: user.username, name: user.name, role: user.role } });
-  res.cookies.set(COOKIE_NAME, token, { httpOnly: true, maxAge: 60 * 60 * 8, path: '/', sameSite: 'lax' });
+  res.cookies.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    maxAge: 60 * 60 * 8,
+    path: '/',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
   return res;
 }
