@@ -22,7 +22,7 @@ const TYPE_COLOR: Record<string, string> = {
 
 export default function BatchReportPage() {
   const today = new Date().toISOString().split('T')[0];
-  const [filters, setFilters] = useState({ batch: '', item: '', type: '', wh: '', dateFrom: '', dateTo: today });
+  const [filters, setFilters] = useState({ batch: '', item: '', type: '', wh: '', bin: '', dateFrom: '', dateTo: today });
   const [txns, setTxns] = useState<Txn[]>([]);
   const [warehouses, setWarehouses] = useState<WH[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +37,7 @@ export default function BatchReportPage() {
     if (filters.item) q.set('item', filters.item);
     if (filters.type) q.set('type', filters.type);
     if (filters.wh) q.set('wh', filters.wh);
+    if (filters.bin) q.set('bin', filters.bin);
     if (filters.dateFrom) q.set('dateFrom', filters.dateFrom);
     if (filters.dateTo) q.set('dateTo', filters.dateTo);
     const data = await fetch(`/api/batch-report?${q.toString()}`).then(r => r.json());
@@ -46,7 +47,7 @@ export default function BatchReportPage() {
   }
 
   function reset() {
-    setFilters({ batch: '', item: '', type: '', wh: '', dateFrom: '', dateTo: today });
+    setFilters({ batch: '', item: '', type: '', wh: '', bin: '', dateFrom: '', dateTo: today });
     setTxns([]); setSearched(false);
   }
 
@@ -65,7 +66,7 @@ export default function BatchReportPage() {
         <div className="flex items-center gap-2 mb-4 text-slate-600 font-medium text-sm">
           <Filter className="w-4 h-4" /> ค้นหาและกรอง
         </div>
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <div>
             <label className="block text-xs text-slate-500 mb-1">Batch Number</label>
             <input value={filters.batch} onChange={e => setFilters({...filters, batch: e.target.value})}
@@ -76,6 +77,7 @@ export default function BatchReportPage() {
           <div>
             <label className="block text-xs text-slate-500 mb-1">รหัส/ชื่อสินค้า</label>
             <input value={filters.item} onChange={e => setFilters({...filters, item: e.target.value})}
+              onKeyDown={e => e.key === 'Enter' && search()}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Item Code หรือชื่อสินค้า" />
           </div>
@@ -97,8 +99,15 @@ export default function BatchReportPage() {
             <select value={filters.wh} onChange={e => setFilters({...filters, wh: e.target.value})}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">ทั้งหมด</option>
-              {warehouses.map(w => <option key={w.code} value={w.code}>{w.code} - {w.name}</option>)}
+              {warehouses.map(w => <option key={w.code} value={w.code}>{w.code} — {w.name}</option>)}
             </select>
+          </div>
+          <div>
+            <label className="block text-xs text-slate-500 mb-1">Bin Location</label>
+            <input value={filters.bin} onChange={e => setFilters({...filters, bin: e.target.value})}
+              onKeyDown={e => e.key === 'Enter' && search()}
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+              placeholder="เช่น A1, ALA-1-1" />
           </div>
           <div>
             <label className="block text-xs text-slate-500 mb-1">วันที่จาก</label>
@@ -161,11 +170,10 @@ export default function BatchReportPage() {
                     <th className="px-4 py-3 text-left">ชื่อสินค้า</th>
                     <th className="px-4 py-3 text-left">Batch No.</th>
                     <th className="px-4 py-3 text-left">Exp. Date</th>
-                    <th className="px-4 py-3 text-left">คลัง</th>
-                    <th className="px-4 py-3 text-left">Bin</th>
+                    <th className="px-4 py-3 text-left">คลัง / Location</th>
                     <th className="px-4 py-3 text-right">รับเข้า</th>
                     <th className="px-4 py-3 text-right">จ่ายออก</th>
-                    <th className="px-4 py-3 text-right">คงเหลือ</th>
+                    <th className="px-4 py-3 text-right">คงเหลือ / Location</th>
                     <th className="px-4 py-3 text-left">หมายเหตุ</th>
                   </tr>
                 </thead>
@@ -183,11 +191,20 @@ export default function BatchReportPage() {
                       <td className="px-4 py-3 text-slate-600">{t.itemName}</td>
                       <td className="px-4 py-3 font-mono text-xs text-blue-600 font-semibold">{t.batchNumber}</td>
                       <td className="px-4 py-3 text-slate-500 text-xs">{t.expiryDate || '-'}</td>
-                      <td className="px-4 py-3 text-slate-500 text-xs">{t.warehouseCode}</td>
-                      <td className="px-4 py-3 text-slate-500 text-xs font-mono">{t.binCode || '-'}</td>
+                      <td className="px-4 py-3">
+                        <span className="text-xs text-slate-500">{t.warehouseCode}</span>
+                        {t.binCode && (
+                          <span className="ml-1 font-mono text-xs bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded">{t.binCode}</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-right font-semibold text-green-600">{t.qtyIn > 0 ? `+${t.qtyIn}` : '-'}</td>
                       <td className="px-4 py-3 text-right font-semibold text-red-500">{t.qtyOut > 0 ? `-${t.qtyOut}` : '-'}</td>
-                      <td className="px-4 py-3 text-right font-bold text-slate-700">{t.balanceQty}</td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="font-bold text-slate-800">{t.balanceQty.toLocaleString()}</div>
+                        {t.binCode && (
+                          <div className="text-xs text-indigo-600 font-mono mt-0.5">{t.warehouseCode}/{t.binCode}</div>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-slate-400 text-xs">{t.remark || '-'}</td>
                     </tr>
                   ))}
