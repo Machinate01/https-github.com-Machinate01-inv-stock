@@ -16,6 +16,7 @@ const TYPE_COLOR: Record<string, string> = {
   GR: 'bg-green-100 text-green-700',
   GI: 'bg-orange-100 text-orange-700',
   PUTAWAY: 'bg-purple-100 text-purple-700',
+  TRANSFER: 'bg-indigo-100 text-indigo-700',
   ADJUSTMENT: 'bg-slate-100 text-slate-600',
 };
 
@@ -83,11 +84,12 @@ export default function BatchReportPage() {
             <select value={filters.type} onChange={e => setFilters({...filters, type: e.target.value})}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
               <option value="">ทั้งหมด</option>
-              <option value="GRPO">GRPO</option>
-              <option value="GR">GR</option>
-              <option value="GI">GI</option>
-              <option value="PUTAWAY">PUTAWAY</option>
-              <option value="ADJUSTMENT">ADJUSTMENT</option>
+              <option value="GRPO">GRPO — รับตาม PO</option>
+              <option value="GR">GR — รับทั่วไป</option>
+              <option value="GI">GI — จ่ายออก</option>
+              <option value="PUTAWAY">PUTAWAY — จัด Location</option>
+              <option value="TRANSFER">TRANSFER — โอนย้าย</option>
+              <option value="ADJUSTMENT">ADJUSTMENT — ปรับยอด</option>
             </select>
           </div>
           <div>
