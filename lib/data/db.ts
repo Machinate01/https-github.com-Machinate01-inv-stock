@@ -1,14 +1,24 @@
-import { createClient } from '@libsql/client';
+import { createClient, Client } from '@libsql/client';
 
-const client = createClient({
-  url: process.env.TURSO_DATABASE_URL!,
-  authToken: process.env.TURSO_AUTH_TOKEN,
-});
+// Lazy client — created on first use (not at build time)
+let _client: Client | null = null;
+function getClient(): Client {
+  if (!_client) {
+    const url = process.env.TURSO_DATABASE_URL;
+    if (!url) throw new Error('TURSO_DATABASE_URL is not set');
+    _client = createClient({
+      url,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+  }
+  return _client;
+}
 
 // Initialize KV table on first use
 let initialized = false;
 async function ensureTable() {
   if (initialized) return;
+  const client = getClient();
   await client.execute(`
     CREATE TABLE IF NOT EXISTS kv (
       key   TEXT PRIMARY KEY,
@@ -26,6 +36,7 @@ async function ensureTable() {
 
 export async function readJson<T>(key: string): Promise<T[]> {
   await ensureTable();
+  const client = getClient();
   const result = await client.execute({
     sql: 'SELECT value FROM kv WHERE key = ?',
     args: [key],
@@ -36,6 +47,7 @@ export async function readJson<T>(key: string): Promise<T[]> {
 
 export async function writeJson<T>(key: string, data: T[]): Promise<void> {
   await ensureTable();
+  const client = getClient();
   await client.execute({
     sql: 'INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)',
     args: [key, JSON.stringify(data)],
@@ -78,6 +90,7 @@ export async function findById<T extends { id: string }>(
 
 export async function getNextDocNumber(prefix: string): Promise<string> {
   await ensureTable();
+  const client = getClient();
   const year = new Date().getFullYear();
   const counterKey = `${prefix}-${year}`;
   await client.execute({

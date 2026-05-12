@@ -2,6 +2,8 @@
  * Migrate all JSON data files → Turso database
  * Run: npx tsx scripts/migrate-to-turso.ts
  */
+import { config } from 'dotenv';
+config({ path: '.env.local' });
 import { createClient } from '@libsql/client';
 import fs from 'fs';
 import path from 'path';
