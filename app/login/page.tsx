@@ -1,10 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Package, Eye, EyeOff, LogIn } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [form, setForm] = useState({ username: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
@@ -21,8 +19,7 @@ export default function LoginPage() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) { setError(data.error); return; }
-    router.refresh();
-    router.replace('/dashboard');
+    window.location.replace('/dashboard');
   }
 
   return (
