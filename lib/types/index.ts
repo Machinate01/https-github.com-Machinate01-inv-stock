@@ -225,8 +225,33 @@ export interface PickList {
   completedAt?: string;
 }
 
+// ===== TRANSFER LOCATION =====
+export interface TransferLine {
+  lineNum: number;
+  itemCode: string;
+  itemName: string;
+  batchNumber: string;
+  qty: number;
+  unit: string;
+  fromWarehouseCode: string;
+  fromBinCode: string;
+  toWarehouseCode: string;
+  toBinCode: string;
+}
+
+export interface TransferLocation {
+  id: string;
+  docNumber: string;    // TRF-2026-0001
+  docDate: string;
+  remark?: string;
+  lines: TransferLine[];
+  status: 'confirmed';
+  createdBy: string;
+  createdAt: string;
+}
+
 // ===== BATCH TRANSACTION (for report) =====
-export type TransactionType = 'GRPO' | 'GR' | 'GI' | 'PUTAWAY' | 'ADJUSTMENT';
+export type TransactionType = 'GRPO' | 'GR' | 'GI' | 'PUTAWAY' | 'ADJUSTMENT' | 'TRANSFER';
 
 export interface BatchTransaction {
   id: string;

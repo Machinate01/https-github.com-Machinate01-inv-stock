@@ -5,15 +5,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, FileInput, PackagePlus, PackageMinus,
   MapPin, ClipboardList, BarChart3, Package, LogOut,
-  ChevronRight, Menu, X
+  ChevronRight, Menu, X, ArrowLeftRight
 } from 'lucide-react';
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Goods Receipt PO', href: '/grpo', icon: FileInput, badge: 'GRPO' },
-  { label: 'Goods Receipt', href: '/gr', icon: PackagePlus, badge: 'GR' },
-  { label: 'Goods Issue', href: '/gi', icon: PackageMinus, badge: 'GI' },
+  { label: 'Goods Receipt PO', href: '/grpo', icon: FileInput },
+  { label: 'Goods Receipt', href: '/gr', icon: PackagePlus },
+  { label: 'Goods Issue', href: '/gi', icon: PackageMinus },
   { label: 'Putaway', href: '/putaway', icon: MapPin },
+  { label: 'Transfer Location', href: '/transfer', icon: ArrowLeftRight },
   { label: 'Pick List', href: '/pick-list', icon: ClipboardList },
   { label: 'Batch Report', href: '/batch-report', icon: BarChart3 },
 ];
